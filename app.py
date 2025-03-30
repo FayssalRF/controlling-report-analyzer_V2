@@ -15,6 +15,8 @@ def load_patterns():
             return json.load(file)
     except FileNotFoundError:
         return [
+            # Forkortelser og ventetid
+            'Ch kunne ikke finde adressen', 'Ch ventede i lang tid', 'lang ventetid', 'længere ventetid', 'long wait', 'longer delay', 'extended wait', 'delayed pickup',
             # 🚦 Trafikproblemer
             'trafikprop', 'langsom trafik', 'kø på motorvejen', 'vejen lukket', 'trafikforsinkelse',
             'vej spærret', 'vejarbejde', 'lukket vej', 'blokeret vej',
@@ -111,7 +113,7 @@ def main():
                 df['MatchedKeywords'] = df['SupportNote'].apply(
                     lambda note: ', '.join([
                         p for p in patterns
-                        if p.lower() in note.lower() or fuzz.partial_ratio(p.lower(), note.lower()) > 90
+                        if p.lower() in note.lower() or fuzz.partial_ratio(p.lower(), note.lower()) > 88
                     ])
                 )
                 df['Keywords'] = df['MatchedKeywords'].apply(lambda matches: "Ja" if matches else "Nej")
