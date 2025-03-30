@@ -54,6 +54,12 @@ def classify_note(note, patterns):
             return "Ja"
     return "Nej"
 
+    note_lower = note.lower()
+    for pattern in patterns:
+        if fuzz.partial_ratio(pattern.lower(), note_lower) > 75:
+            return "Ja"
+    return "Nej"
+
 def convert_df_to_excel(df):
     output = BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
@@ -66,46 +72,47 @@ def main():
     st.title("Controlling Report Analyzer")
 
     with st.sidebar:
-        st.markdown("""
-        <style>
-        .sidebar-title {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-        div[class^='stRadio'] > label > div[data-testid='stMarkdownContainer'] {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        div[class^='stRadio'] input[type='radio'] {
-            display: none !important;
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            margin: 0;
-            padding: 0;
-            height: 0;
-            width: 0;
-            opacity: 0;
-        }
-        div[class^='stRadio'] input[type='radio'] + div {
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            padding: 10px;
-            cursor: pointer;
-            background-color: #f0f2f6;
-            transition: background-color 0.2s ease;
-        }
-        div[class^='stRadio'] input[type='radio']:checked + div {
-            background-color: #4285F4;
-            color: white;
-            font-weight: bold;
-        }
-        </style>
-        """, unsafe_allow_html=True)
-        st.markdown('<div class="sidebar-title">📂 Navigation</div>', unsafe_allow_html=True)
-        menu = st.radio("", ["📊 Analyse", "🛠️ Forbedre Mønstre", "📈 Statistik"], key="menu_radio")
+    st.markdown("""
+    <style>
+    .sidebar-title {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+    div[class^='stRadio'] > label > div[data-testid='stMarkdownContainer'] {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    div[class^='stRadio'] input[type='radio'] {
+        display: none !important;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        margin: 0;
+        padding: 0;
+        height: 0;
+        width: 0;
+        opacity: 0;
+    }
+    div[class^='stRadio'] input[type='radio'] + div {
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        padding: 10px;
+        cursor: pointer;
+        background-color: #f0f2f6;
+        transition: background-color 0.2s ease;
+    }
+    div[class^='stRadio'] input[type='radio']:checked + div {
+        background-color: #4285F4;
+        color: white;
+        font-weight: bold;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown('<div class="sidebar-title">📂 Navigation</div>', unsafe_allow_html=True)
+    menu = st.radio("", ["📊 Analyse", "📈 Statistik"], key="menu_radio")
 
     patterns = load_patterns()
 
@@ -133,36 +140,6 @@ def main():
                 st.session_state['last_df'] = df
             else:
                 st.error("Den uploadede fil mangler kolonnen 'SupportNote'.")
-
-    elif menu == "🛠️ Forbedre Mønstre":
-        if 'last_df' in st.session_state:
-            df = st.session_state['last_df']
-            vis_cols = ["SessionId", "Date", "Slug", "CustomerId", "CustomerName", "DurationDifference", "SupportNote", "Keywords"]
-            st.write("### Marker en række som fejlklassificeret")
-            edited_df = st.data_editor(df[vis_cols], num_rows="dynamic", use_container_width=True, key="edit")
-
-            index = st.number_input("Indtast række-ID for fejlklassificering", min_value=0, max_value=len(df)-1, step=1)
-            if df.shape[0] > 0:
-                if st.button("Markér som forkert"):
-                    st.session_state.feedback_rows.append(df.iloc[index])
-                    st.success("Række markeret som forkert.")
-
-            if st.button("Forbedre Mønstre baseret på fejl"):
-                explanations = []
-                new_patterns = []
-                for row in st.session_state.feedback_rows:
-                    note = row['SupportNote']
-                    explanations.append(f"Tidligere support note: '{note}' blev klassificeret som 'Nej'.")
-                    new_patterns.extend([word for word in str(note).split() if len(word) > 4])
-                if new_patterns:
-                    patterns = list(set(patterns + new_patterns))
-                    save_patterns(patterns)
-                    st.success("Mønstergenkendelsen er blevet forbedret!")
-                    st.write("### Forklaringer på forbedring:")
-                    for e in explanations:
-                        st.markdown(f"- {e}")
-        else:
-            st.info("Upload og analysér først en fil i fanen 'Analyse'.")
 
     elif menu == "📈 Statistik":
         if 'last_df' in st.session_state:
