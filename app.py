@@ -111,7 +111,9 @@ def main():
                 df['MatchedKeywords'] = df['SupportNote'].apply(
                     lambda note: ', '.join([
                         p for p in patterns
-                        if fuzz.token_set_ratio(p.lower(), note.lower()) > 85 and len(p.split()) > 1
+                        if p.lower() in note.lower() or fuzz.token_set_ratio(p.lower(), note.lower()) > 90
+                    ])
+                ), note.lower()) > 85 and len(p.split()) > 1
                     ])
                 )
                 df['Keywords'] = df['MatchedKeywords'].apply(lambda matches: "Ja" if matches else "Nej")
