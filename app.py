@@ -58,13 +58,14 @@ def classify_note(note, patterns, model, pattern_embeddings):
         if fuzz.partial_ratio(pattern.lower(), note_lower) > 75:
             return "Ja"
 
-    # Semantisk similarity
+    # Semantisk similarity (bruges kun hvis fuzzy ikke matcher)
     note_embedding = model.encode(note, convert_to_tensor=True)
     scores = util.cos_sim(note_embedding, pattern_embeddings)[0]
-    if scores.max().item() > 0.7:
+    if scores.max().item() > 0.83:
         return "Ja"
 
     return "Nej"
+
 
 def convert_df_to_excel(df):
     output = BytesIO()
@@ -72,6 +73,7 @@ def convert_df_to_excel(df):
         df.to_excel(writer, index=False, sheet_name='Resultat')
     processed_data = output.getvalue()
     return processed_data
+
 
 def main():
     st.set_page_config(page_title="Controlling Report Analyzer", layout="wide")
