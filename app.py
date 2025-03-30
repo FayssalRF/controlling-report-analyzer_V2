@@ -102,7 +102,7 @@ def main():
 
 menu = st.radio("Vælg funktion:", ["📊 Analyse", "📈 Statistik"], horizontal=True, key="menu_radio")
 
-    patterns = load_patterns()
+patterns = load_patterns()
 
     if 'feedback_rows' not in st.session_state:
         st.session_state.feedback_rows = []
