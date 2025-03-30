@@ -111,7 +111,7 @@ with st.sidebar:
     </style>
     """, unsafe_allow_html=True)
 
-st.markdown('<div class="sidebar-title">📂 Navigation</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sidebar-title">📂 Navigation</div>', unsafe_allow_html=True)
     menu = st.radio("", ["📊 Analyse", "🛠️ Forbedre Mønstre", "📈 Statistik"], key="menu_radio")
 
     patterns = load_patterns()
