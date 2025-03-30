@@ -15,37 +15,19 @@ def load_patterns():
             return json.load(file)
     except FileNotFoundError:
         return [
-            'trafik', 'trafikale problemer', 'kø på vejen', 'langsom trafik', 'vejarbejde', 'vejen lukket',
-            'lukkede veje', 'trafikprop', 'roadwork', 'road closed', 'heavy traffic', 'traffic jam', 'detour',
-            'forsinket lager', 'lageret ikke klar', 'afsender ikke klar', 'blomsterbutikken åbnede senere',
-            'butikken ikke åben', 'waiting at location', 'sender delayed', 'florist not ready', 'pickup delay', 'no one at pickup',
-            'tilføjet ekstra stop', 'ændret rækkefølge', 'stop fjernet', 'ændret rute', 'stop omrokeret',
-            'ekstra leverance', 'changed route', 'extra stop', 'stop removed',
-            'ingen svarer', 'modtager ikke hjemme', 'kunden ikke hjemme', 'kunden tager ikke telefon',
-            'receiver not present', 'no answer', 'not home', 'unanswered call', 'kunde ikke kontaktbar',
-            'forkert vejnavn', 'forkert husnummer', 'forkert postnummer', 'kunne ikke finde adressen',
-            'ikke på adressen', 'adressen findes ikke', 'wrong address', 'wrong street', 'not found', 'location mismatch',
-            'porten lukket', 'ingen adgang', 'adgang nægtet', 'adgang kræver nøgle', 'adgang via alarm',
-            'kunne ikke komme ind', 'no access', 'locked gate', 'restricted area', 'entrance blocked',
-            'kunden sur', 'kunden klager', 'afsender afviser', 'modtager uenig', 'problem med kunde',
-            'receiver refused', 'sender issue', 'customer complaint',
-            'hospital', 'skole', 'center', 'gågade', 'etageejendom', 'manglende parkering',
-            'svært at finde', 'busy location', 'pedestrian zone', 'no parking', 'delivery challenge'
+            # Liste over præcise sætninger – ikke enkeltord
+            'trafikprop på motorvejen', 'langsom trafik i området', 'vejen lukket af politi',
+            'forsinket afhentning på lager', 'butikken åbnede senere end planlagt',
+            'tilføjet ekstra stop efter aftale', 'stop fjernet fra ruten', 'ændret rute grundet ændring',
+            'modtager ikke hjemme ved levering', 'ingen svar ved opkald', 'kunden tog ikke telefonen',
+            'forkert husnummer angivet', 'adressen findes ikke i systemet', 'kunne ikke komme ind i bygningen',
+            'porten var låst', 'ingen adgang til butikken', 'kunden var vred', 'modtager nægtede at modtage',
+            'levering til hospital', 'levering i gågade', 'ingen parkering tilgængelig'
         ]
 
 def save_patterns(patterns):
     with open(PATTERNS_FILE, 'w') as file:
         json.dump(patterns, file)
-
-def classify_note(note, patterns):
-    if pd.isna(note):
-        return "Nej"
-    note_lower = note.lower()
-    for pattern in patterns:
-        score = fuzz.token_set_ratio(pattern.lower(), note_lower)
-        if score > 85:
-            return "Ja"
-    return "Nej"
 
 def convert_df_to_excel(df):
     output = BytesIO()
@@ -96,15 +78,16 @@ def main():
             if 'SupportNote' in df.columns:
                 df = df[df['SupportNote'].notna()].copy()
                 df['MatchedKeywords'] = df['SupportNote'].apply(
-    lambda note: ', '.join([
-        p for p in patterns
-        if fuzz.token_set_ratio(p.lower(), note.lower()) > 85 and len(p.split()) > 1
-    ])
-), note.lower()) > 85])
+                    lambda note: ', '.join([
+                        p for p in patterns
+                        if fuzz.token_set_ratio(p.lower(), note.lower()) > 85 and len(p.split()) > 1
+                    ])
                 )
                 df['Keywords'] = df['MatchedKeywords'].apply(lambda matches: "Ja" if matches else "Nej")
+
                 vis_cols = ["SessionId", "Date", "CustomerId", "CustomerName", "SupportNote", "Keywords", "MatchedKeywords"]
                 df = df[[col for col in vis_cols if col in df.columns]]
+
                 st.write("### Resultater")
                 st.dataframe(df)
 
