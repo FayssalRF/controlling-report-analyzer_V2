@@ -107,11 +107,11 @@ def main():
         if uploaded_file:
             df = pd.read_excel(uploaded_file)
             if 'SupportNote' in df.columns:
-                df = df[df['SupportNote'].notna()].copy()
+                df = df[df['SupportNote'].notna() & df['CustomerName'].notna()].copy()
                 df['MatchedKeywords'] = df['SupportNote'].apply(
                     lambda note: ', '.join([
                         p for p in patterns
-                        if p.lower() in note.lower() or fuzz.token_set_ratio(p.lower(), note.lower()) > 90
+                        if p.lower() in note.lower() or fuzz.partial_ratio(p.lower(), note.lower()) > 90
                     ])
                 )
                 df['Keywords'] = df['MatchedKeywords'].apply(lambda matches: "Ja" if matches else "Nej")
