@@ -49,6 +49,13 @@ def classify_note(note, patterns):
 
     note_lower = note.lower()
     for pattern in patterns:
+        score = fuzz.token_set_ratio(pattern.lower(), note_lower)
+        if score > 85:
+            return "Ja"
+    return "Nej"
+
+    note_lower = note.lower()
+    for pattern in patterns:
         if fuzz.partial_ratio(pattern.lower(), note_lower) > 75:
             return "Ja"
     return "Nej"
@@ -96,7 +103,7 @@ def main():
     elif menu == "Forbedre Mønstre":
         if 'last_df' in st.session_state:
             df = st.session_state['last_df']
-            vis_cols = ["SessionID", "Date", "Slug", "CustomerID", "CustomerName", "DurationDifference", "SupportNote", "Keywords"]
+            vis_cols = ["SessionId", "Date", "Slug", "CustomerId", "CustomerName", "DurationDifference", "SupportNote", "Keywords"]
             st.write("### Marker en række som fejlklassificeret")
             edited_df = st.data_editor(df[vis_cols], num_rows="dynamic", use_container_width=True, key="edit")
 
