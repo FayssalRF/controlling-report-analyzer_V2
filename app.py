@@ -112,6 +112,7 @@ def main():
     lambda note: ', '.join(
         [p for p in patterns if p.lower() in note.lower() or fuzz.token_set_ratio(p.lower(), note.lower()) > 90]
     )
+)
 ) in note.lower() or fuzz.token_set_ratio(p.lower(), note.lower()) > 90
     ])
 )
