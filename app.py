@@ -85,7 +85,32 @@ def main():
         </style>
         """, unsafe_allow_html=True)
         st.markdown('<div class="sidebar-title">📂 Navigation</div>', unsafe_allow_html=True)
-        menu = st.radio("", ["📊 Analyse", "🛠️ Forbedre Mønstre", "📈 Statistik"], key="menu_radio")
+        menu = st.markdown("""
+<style>
+    div[class^='stRadio'] > label > div[data-testid='stMarkdownContainer'] {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    div[class^='stRadio'] input[type='radio'] {
+        display: none;
+    }
+    div[class^='stRadio'] input[type='radio'] + div {
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        padding: 10px;
+        cursor: pointer;
+        background-color: #f0f2f6;
+        transition: background-color 0.2s ease;
+    }
+    div[class^='stRadio'] input[type='radio']:checked + div {
+        background-color: #4285F4;
+        color: white;
+        font-weight: bold;
+    }
+</style>
+""", unsafe_allow_html=True)
+menu = st.radio("", ["📊 Analyse", "🛠️ Forbedre Mønstre", "📈 Statistik"], key="menu_radio")
 
     patterns = load_patterns()
 
