@@ -54,11 +54,7 @@ def classify_note(note, patterns):
             return "Ja"
     return "Nej"
 
-    note_lower = note.lower()
-    for pattern in patterns:
-        if fuzz.partial_ratio(pattern.lower(), note_lower) > 75:
-            return "Ja"
-    return "Nej"
+    
 
 def convert_df_to_excel(df):
     output = BytesIO()
@@ -104,8 +100,7 @@ menu = st.radio("Vælg funktion:", ["📊 Analyse", "📈 Statistik"], horizonta
 
 patterns = load_patterns()
 
-    if 'feedback_rows' not in st.session_state:
-        st.session_state.feedback_rows = []
+    
 
     if menu == "📊 Analyse":
         uploaded_file = st.file_uploader("Upload din Controlling Report (Excel)", type="xlsx")
