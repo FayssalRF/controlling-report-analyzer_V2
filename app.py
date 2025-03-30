@@ -109,9 +109,11 @@ def main():
             if 'SupportNote' in df.columns:
                 df = df[df['SupportNote'].notna()].copy()
                 df['MatchedKeywords'] = df['SupportNote'].apply(
-    lambda note: ', '.join(
-        [p for p in patterns if p.lower(]
-    )
+    lambda note: ', '.join([
+        p for p in patterns
+        if p.lower() in note.lower() or fuzz.token_set_ratio(p.lower(), note.lower()) > 90
+    ])
+)
 )
 ) in note.lower() or fuzz.token_set_ratio(p.lower(), note.lower()) > 90
     ])
