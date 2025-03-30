@@ -63,6 +63,8 @@ def convert_df_to_excel(df):
     processed_data = output.getvalue()
     return processed_data
 
+st.set_page_config(page_title="Controlling Report Analyzer", layout="wide")
+
 def main():
     st.set_page_config(page_title="Controlling Report Analyzer", layout="wide")
     st.title("Controlling Report Analyzer")
@@ -124,8 +126,8 @@ if menu == "📊 Analyse":
             else:
                 st.error("Den uploadede fil mangler kolonnen 'SupportNote'.")
 
-elif menu == "📈 Statistik":
-      if 'last_df' in st.session_state:
+        elif menu == "📈 Statistik":
+    if 'last_df' in st.session_state:
             df = st.session_state['last_df']
             total_notes = df['SupportNote'].notna().sum()
             tagged_yes = df[df['Keywords'] == 'Ja'].shape[0]
@@ -140,8 +142,8 @@ elif menu == "📈 Statistik":
                 st.write("### Brugte nøgleord i matches:")
                 for word in sorted(matched_terms):
                     st.markdown(f"- {word}")
-            else:
-                st.info("Ingen analyseret data tilgængelig endnu.")
+        else:
+            st.info("Ingen analyseret data tilgængelig endnu.")
 
 if __name__ == '__main__':
     main()
