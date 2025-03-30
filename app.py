@@ -140,8 +140,8 @@ elif menu == "📈 Statistik":
                 st.write("### Brugte nøgleord i matches:")
                 for word in sorted(matched_terms):
                     st.markdown(f"- {word}")
-        else:
-            st.info("Ingen analyseret data tilgængelig endnu.")
+            else:
+                st.info("Ingen analyseret data tilgængelig endnu.")
 
 if __name__ == '__main__':
     main()
