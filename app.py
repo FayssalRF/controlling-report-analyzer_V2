@@ -3,10 +3,8 @@ import pandas as pd
 import json
 from fuzzywuzzy import fuzz
 from io import BytesIO
-from sentence_transformers import SentenceTransformer, util
 
 PATTERNS_FILE = 'patterns.json'
-EMBED_MODEL = 'all-MiniLM-L6-v2'
 
 @st.cache_data
 def load_patterns():
@@ -41,15 +39,11 @@ def load_patterns():
             'svært at finde', 'busy location', 'pedestrian zone', 'no parking', 'delivery challenge'
         ]
 
-@st.cache_resource
-def load_model():
-    return SentenceTransformer(EMBED_MODEL)
-
 def save_patterns(patterns):
     with open(PATTERNS_FILE, 'w') as file:
         json.dump(patterns, file)
 
-def classify_note(note, patterns, model, pattern_embeddings):
+def classify_note(note, patterns):
     if pd.isna(note):
         return "Nej"
 
@@ -57,15 +51,7 @@ def classify_note(note, patterns, model, pattern_embeddings):
     for pattern in patterns:
         if fuzz.partial_ratio(pattern.lower(), note_lower) > 75:
             return "Ja"
-
-    # Semantisk similarity (bruges kun hvis fuzzy ikke matcher)
-    note_embedding = model.encode(note, convert_to_tensor=True)
-    scores = util.cos_sim(note_embedding, pattern_embeddings)[0]
-    if scores.max().item() > 0.83:
-        return "Ja"
-
     return "Nej"
-
 
 def convert_df_to_excel(df):
     output = BytesIO()
@@ -74,7 +60,6 @@ def convert_df_to_excel(df):
     processed_data = output.getvalue()
     return processed_data
 
-
 def main():
     st.set_page_config(page_title="Controlling Report Analyzer", layout="wide")
     st.title("Controlling Report Analyzer")
@@ -82,8 +67,6 @@ def main():
     menu = st.sidebar.radio("Naviger", ["Analyse", "Forbedre Mønstre", "Statistik"])
 
     patterns = load_patterns()
-    model = load_model()
-    pattern_embeddings = model.encode(patterns, convert_to_tensor=True)
 
     if 'feedback_rows' not in st.session_state:
         st.session_state.feedback_rows = []
@@ -94,7 +77,7 @@ def main():
         if uploaded_file:
             df = pd.read_excel(uploaded_file)
             if 'SupportNote' in df.columns:
-                df['Keywords'] = df['SupportNote'].apply(lambda x: classify_note(x, patterns, model, pattern_embeddings))
+                df['Keywords'] = df['SupportNote'].apply(lambda x: classify_note(x, patterns))
                 st.write("### Resultater")
                 st.dataframe(df)
 
