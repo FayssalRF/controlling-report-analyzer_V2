@@ -100,9 +100,7 @@ menu = st.radio("Vælg funktion:", ["📊 Analyse", "📈 Statistik"], horizonta
 
 patterns = load_patterns()
 
-    
-
-    if menu == "📊 Analyse":
+if menu == "📊 Analyse":
         uploaded_file = st.file_uploader("Upload din Controlling Report (Excel)", type="xlsx")
 
         if uploaded_file:
