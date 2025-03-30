@@ -54,12 +54,6 @@ def classify_note(note, patterns):
             return "Ja"
     return "Nej"
 
-    note_lower = note.lower()
-    for pattern in patterns:
-        if fuzz.partial_ratio(pattern.lower(), note_lower) > 75:
-            return "Ja"
-    return "Nej"
-
 def convert_df_to_excel(df):
     output = BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
@@ -72,47 +66,46 @@ def main():
     st.title("Controlling Report Analyzer")
 
     with st.sidebar:
-    st.markdown("""
-    <style>
-    .sidebar-title {
-        font-size: 20px;
-        font-weight: bold;
-        margin-bottom: 15px;
-    }
-    div[class^='stRadio'] > label > div[data-testid='stMarkdownContainer'] {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-    div[class^='stRadio'] input[type='radio'] {
-        display: none !important;
-        appearance: none;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        margin: 0;
-        padding: 0;
-        height: 0;
-        width: 0;
-        opacity: 0;
-    }
-    div[class^='stRadio'] input[type='radio'] + div {
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        padding: 10px;
-        cursor: pointer;
-        background-color: #f0f2f6;
-        transition: background-color 0.2s ease;
-    }
-    div[class^='stRadio'] input[type='radio']:checked + div {
-        background-color: #4285F4;
-        color: white;
-        font-weight: bold;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-    st.markdown('<div class="sidebar-title">📂 Navigation</div>', unsafe_allow_html=True)
-    menu = st.radio("", ["📊 Analyse", "🛠️ Forbedre Mønstre", "📈 Statistik"], key="menu_radio")
+        st.markdown("""
+        <style>
+        .sidebar-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        div[class^='stRadio'] > label > div[data-testid='stMarkdownContainer'] {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        div[class^='stRadio'] input[type='radio'] {
+            display: none !important;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            margin: 0;
+            padding: 0;
+            height: 0;
+            width: 0;
+            opacity: 0;
+        }
+        div[class^='stRadio'] input[type='radio'] + div {
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            padding: 10px;
+            cursor: pointer;
+            background-color: #f0f2f6;
+            transition: background-color 0.2s ease;
+        }
+        div[class^='stRadio'] input[type='radio']:checked + div {
+            background-color: #4285F4;
+            color: white;
+            font-weight: bold;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+        st.markdown('<div class="sidebar-title">📂 Navigation</div>', unsafe_allow_html=True)
+        menu = st.radio("", ["📊 Analyse", "🛠️ Forbedre Mønstre", "📈 Statistik"], key="menu_radio")
 
     patterns = load_patterns()
 
