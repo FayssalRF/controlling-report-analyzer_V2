@@ -125,6 +125,7 @@ if menu == "📊 Analyse":
                 st.error("Den uploadede fil mangler kolonnen 'SupportNote'.")
 
         elif menu == "📈 Statistik":
+        
         if 'last_df' in st.session_state:
             df = st.session_state['last_df']
             total_notes = df['SupportNote'].notna().sum()
