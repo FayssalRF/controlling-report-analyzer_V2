@@ -54,6 +54,12 @@ def classify_note(note, patterns):
             return "Ja"
     return "Nej"
 
+    note_lower = note.lower()
+    for pattern in patterns:
+        if fuzz.partial_ratio(pattern.lower(), note_lower) > 75:
+            return "Ja"
+    return "Nej"
+
 def convert_df_to_excel(df):
     output = BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
@@ -65,50 +71,41 @@ def main():
     st.set_page_config(page_title="Controlling Report Analyzer", layout="wide")
     st.title("Controlling Report Analyzer")
 
-    with st.sidebar:
-        st.markdown("""
-        <style>
-        .sidebar-title {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-        div[class^='stRadio'] > label > div[data-testid='stMarkdownContainer'] {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        div[class^='stRadio'] input[type='radio'] {
-            display: none !important;
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            margin: 0;
-            padding: 0;
-            height: 0;
-            width: 0;
-            opacity: 0;
-        }
-        div[class^='stRadio'] input[type='radio'] + div {
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            padding: 10px;
-            cursor: pointer;
-            background-color: #f0f2f6;
-            transition: background-color 0.2s ease;
-        }
-        div[class^='stRadio'] input[type='radio']:checked + div {
-            background-color: #4285F4;
-            color: white;
-            font-weight: bold;
-        }
-        </style>
-        """, unsafe_allow_html=True)
+    st.markdown("""
+<style>
+    .block-container {
+        padding-top: 2rem;
+    }
+    div[class^='stRadio'] > label > div[data-testid='stMarkdownContainer'] {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+    }
+    div[class^='stRadio'] input[type='radio'] {
+        display: none;
+    }
+    div[class^='stRadio'] input[type='radio'] + div {
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        padding: 10px 20px;
+        cursor: pointer;
+        background-color: #f0f2f6;
+        transition: background-color 0.2s ease;
+    }
+    div[class^='stRadio'] input[type='radio']:checked + div {
+        background-color: #4285F4;
+        color: white;
+        font-weight: bold;
+    }
+</style>
+""", unsafe_allow_html=True)
 
-        st.markdown('<div class="sidebar-title">📂 Navigation</div>', unsafe_allow_html=True)
-        menu = st.radio("", ["📊 Analyse", "📈 Statistik"], key="menu_radio")
+menu = st.radio("Vælg funktion:", ["📊 Analyse", "📈 Statistik"], horizontal=True, key="menu_radio")
 
     patterns = load_patterns()
+
+    if 'feedback_rows' not in st.session_state:
+        st.session_state.feedback_rows = []
 
     if menu == "📊 Analyse":
         uploaded_file = st.file_uploader("Upload din Controlling Report (Excel)", type="xlsx")
@@ -116,7 +113,9 @@ def main():
         if uploaded_file:
             df = pd.read_excel(uploaded_file)
             if 'SupportNote' in df.columns:
-                df['Keywords'] = df['SupportNote'].apply(lambda x: classify_note(x, patterns))
+                df = df[df['SupportNote'].notna()].copy()
+                df['MatchedKeywords'] = df['SupportNote'].apply(lambda note: ', '.join([p for p in patterns if fuzz.token_set_ratio(p.lower(), note.lower()) > 85]))
+                df['Keywords'] = df['MatchedKeywords'].apply(lambda matches: "Ja" if matches else "Nej")
                 st.write("### Resultater")
                 st.dataframe(df)
 
@@ -140,6 +139,14 @@ def main():
 
             st.metric("Rækker med Support Notes", total_notes)
             st.metric("Klassificeret som 'Ja'", tagged_yes)
+            matched_keywords = st.session_state['last_df']['MatchedKeywords']
+            matched_terms = set()
+            for entry in matched_keywords:
+                matched_terms.update([term.strip() for term in str(entry).split(',') if term.strip()])
+            if matched_terms:
+                st.write("### Brugte nøgleord i matches:")
+                for word in sorted(matched_terms):
+                    st.markdown(f"- {word}")
         else:
             st.info("Ingen analyseret data tilgængelig endnu.")
 
