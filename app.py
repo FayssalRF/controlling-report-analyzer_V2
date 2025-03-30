@@ -71,7 +71,7 @@ def main():
     st.set_page_config(page_title="Controlling Report Analyzer", layout="wide")
     st.title("Controlling Report Analyzer")
 
-with st.sidebar:
+    with st.sidebar:
     st.markdown("""
     <style>
     .sidebar-title {
