@@ -71,7 +71,7 @@ def main():
     st.set_page_config(page_title="Controlling Report Analyzer", layout="wide")
     st.title("Controlling Report Analyzer")
 
-    with st.sidebar:
+with st.sidebar:
     st.markdown("""
     <style>
     .sidebar-title {
@@ -111,7 +111,7 @@ def main():
     </style>
     """, unsafe_allow_html=True)
 
-    st.markdown('<div class="sidebar-title">📂 Navigation</div>', unsafe_allow_html=True)
+st.markdown('<div class="sidebar-title">📂 Navigation</div>', unsafe_allow_html=True)
     menu = st.radio("", ["📊 Analyse", "🛠️ Forbedre Mønstre", "📈 Statistik"], key="menu_radio")
 
     patterns = load_patterns()
@@ -151,8 +151,8 @@ def main():
             index = st.number_input("Indtast række-ID for fejlklassificering", min_value=0, max_value=len(df)-1, step=1)
             if df.shape[0] > 0:
                 if st.button("Markér som forkert"):
-                st.session_state.feedback_rows.append(df.iloc[index])
-                st.success("Række markeret som forkert.")
+                    st.session_state.feedback_rows.append(df.iloc[index])
+                    st.success("Række markeret som forkert.")
 
             if st.button("Forbedre Mønstre baseret på fejl"):
                 explanations = []
