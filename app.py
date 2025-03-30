@@ -71,14 +71,28 @@ def main():
     st.set_page_config(page_title="Controlling Report Analyzer", layout="wide")
     st.title("Controlling Report Analyzer")
 
-    menu = st.sidebar.radio("Naviger", ["Analyse", "Forbedre Mønstre", "Statistik"])
+    with st.sidebar:
+        st.markdown("""
+        <style>
+        .sidebar-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .sidebar-option {
+            margin-bottom: 10px;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+        st.markdown('<div class="sidebar-title">📂 Navigation</div>', unsafe_allow_html=True)
+        menu = st.radio("", ["📊 Analyse", "🛠️ Forbedre Mønstre", "📈 Statistik"], key="menu_radio")
 
     patterns = load_patterns()
 
     if 'feedback_rows' not in st.session_state:
         st.session_state.feedback_rows = []
 
-    if menu == "Analyse":
+    if menu == "📊 Analyse":
         uploaded_file = st.file_uploader("Upload din Controlling Report (Excel)", type="xlsx")
 
         if uploaded_file:
@@ -100,7 +114,7 @@ def main():
             else:
                 st.error("Den uploadede fil mangler kolonnen 'SupportNote'.")
 
-    elif menu == "Forbedre Mønstre":
+    elif menu == "🛠️ Forbedre Mønstre":
         if 'last_df' in st.session_state:
             df = st.session_state['last_df']
             vis_cols = ["SessionId", "Date", "Slug", "CustomerId", "CustomerName", "DurationDifference", "SupportNote", "Keywords"]
@@ -129,7 +143,7 @@ def main():
         else:
             st.info("Upload og analysér først en fil i fanen 'Analyse'.")
 
-    elif menu == "Statistik":
+    elif menu == "📈 Statistik":
         if 'last_df' in st.session_state:
             df = st.session_state['last_df']
             total_notes = df['SupportNote'].notna().sum()
